@@ -18,18 +18,20 @@ const options = {
   playground: "/playground",
 };
 
-mongoose
-  .connect(process.env.MONGODB_URI, { useNewUrlParser: true })
-  .then(() => {
+const start = async (uri) => {
+  let connection;
+  try {
+    connection = await mongoose.connect(uri, { useNewUrlParser: true });
     console.log("Database connected");
-  })
-  .then(() => {
     server.start(options, ({ port }) =>
-      console.log(
-        `Server started, listening on port ${port} for incoming requests.`
-      )
+      console.log(`Server started at http://localhost:${port}.`)
     );
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+    return connection;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+start(process.env.MONGODB_URI);
+
+module.exports = start;
