@@ -43,6 +43,7 @@ module.exports = `
   type Query {
     courses: [Course]
     course(courseId: ID!): Course
+    user(userId: ID!): User
   }
   type Mutation {
     register(registerInput: RegisterInput): User!

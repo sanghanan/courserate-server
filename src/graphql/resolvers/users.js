@@ -16,11 +16,25 @@ const generateToken = (user) => {
       username: user.username,
     },
     process.env.SECRET_KEY,
-    { expiresIn: "1h" }
+    { expiresIn: "6h" }
   );
 };
 
 module.exports = {
+  Query: {
+    async user(_, { userId }) {
+      try {
+        const user = await User.findById(userId);
+        if (user) {
+          return user;
+        } else {
+          throw new Error("user not found");
+        }
+      } catch (err) {
+        throw new Error(err);
+      }
+    },
+  },
   Mutation: {
     async login(_, { username, password }) {
       const { errors, valid } = validateLoginInput(username, password);

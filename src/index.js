@@ -18,7 +18,7 @@ const options = {
   playground: "/playground",
 };
 
-const start = async () => {
+const startServer = async () => {
   let connection;
   try {
     connection = await mongoose.connect(process.env.MONGODB_URI, {
@@ -34,6 +34,6 @@ const start = async () => {
   }
 };
 
-start();
+startServer();
 
-module.exports = start;
+module.exports = startServer;
