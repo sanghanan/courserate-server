@@ -18,10 +18,12 @@ const options = {
   playground: "/playground",
 };
 
-const start = async (uri) => {
+const start = async () => {
   let connection;
   try {
-    connection = await mongoose.connect(uri, { useNewUrlParser: true });
+    connection = await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+    });
     console.log("Database connected");
     server.start(options, ({ port }) =>
       console.log(`Server started at http://localhost:${port}.`)
@@ -32,6 +34,6 @@ const start = async (uri) => {
   }
 };
 
-start(process.env.MONGODB_URI);
+start();
 
 module.exports = start;

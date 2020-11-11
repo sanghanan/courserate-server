@@ -55,7 +55,7 @@ module.exports = {
         throw new UserInputError("Errors", { errors });
       }
       //  check for unique username and email
-      const user = await User.findOne({ username });
+      let user = await User.findOne({ username });
       if (user) {
         throw new UserInputError("Username is taken", {
           errors: {
@@ -64,7 +64,15 @@ module.exports = {
         });
       }
 
-      UserInputError;
+      user = await User.findOne({ email });
+      if (user) {
+        throw new UserInputError("This email is taken", {
+          errors: {
+            email: "This email is taken.",
+          },
+        });
+      }
+
       // Hash password and create an auth token
       password = await bcrypt.hash(password, 12);
       const newUser = new User({
