@@ -23,7 +23,7 @@ const options = {
 const startServer = async () => {
   let connection;
   try {
-    connection = await mongoose.connect("mongodb://localhost:27017/myapp", {
+    connection = await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
