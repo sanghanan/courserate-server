@@ -29,7 +29,7 @@ module.exports = {
   },
   Mutation: {
     async createCourse(_, { title, link, cost, level, skills }, context) {
-      const user = checkAuth(context);
+      const user = await checkAuth(context);
       if (title.trim() === "") {
         throw new UserInputError("Course title must not be empty");
       }
@@ -48,7 +48,7 @@ module.exports = {
       return course;
     },
     async deleteCourse(_, { courseId }, context) {
-      const user = checkAuth(context);
+      const user = await checkAuth(context);
       try {
         const course = await Course.findById(courseId);
         if (user.username === course.username) {
@@ -62,7 +62,7 @@ module.exports = {
       }
     },
     async voteCourse(_, { courseId }, context) {
-      const { username } = checkAuth(context);
+      const { username } = await checkAuth(context);
       const course = await Course.findById(courseId);
       if (course) {
         if (course.votes.find((vote) => vote.username === username)) {

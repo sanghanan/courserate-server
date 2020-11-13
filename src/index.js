@@ -3,6 +3,7 @@ const { GraphQLServer } = require("graphql-yoga");
 const mongoose = require("mongoose");
 const typeDefs = require("./graphql/typeDefs");
 const resolvers = require("./graphql/resolvers");
+const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 5000;
 
 const server = new GraphQLServer({
@@ -11,6 +12,7 @@ const server = new GraphQLServer({
   context: (req) => req,
 });
 
+server.use(cookieParser());
 const options = {
   port: PORT,
   endpoint: "/graphql",
@@ -21,8 +23,9 @@ const options = {
 const startServer = async () => {
   let connection;
   try {
-    connection = await mongoose.connect(process.env.MONGODB_URI, {
+    connection = await mongoose.connect("mongodb://localhost:27017/myapp", {
       useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
     console.log("Database connected");
     server.start(options, ({ port }) =>

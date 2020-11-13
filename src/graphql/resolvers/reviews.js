@@ -5,7 +5,7 @@ const checkAuth = require("../../util/checkAuth");
 module.exports = {
   Mutation: {
     createReview: async (_, { courseId, pros, cons }, context) => {
-      const { username } = checkAuth(context);
+      const { username } = await checkAuth(context);
       const course = await Course.findById(courseId);
       if (course) {
         course.reviews.unshift({
@@ -19,7 +19,7 @@ module.exports = {
       } else throw new UserInputError("Course not found");
     },
     deleteReview: async (_, { courseId, reviewId }, context) => {
-      const { username } = checkAuth(context);
+      const { username } = await checkAuth(context);
       const course = await Course.findById(courseId);
       if (course) {
         const reviewIndex = course.reviews.findIndex((c) => c.id === reviewId);

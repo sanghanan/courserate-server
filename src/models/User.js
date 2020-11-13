@@ -6,6 +6,10 @@ const userSchema = new Schema({
   email: String,
   createdAt: String,
   bio: String,
+  count: {
+    default: 0,
+    type: Number,
+  },
 });
 
 module.exports = model("User", userSchema);

@@ -1,24 +1,15 @@
 const User = require("../../models/User");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+
 const { UserInputError } = require("apollo-server");
 const {
   validateRegisterInput,
   validateLoginInput,
 } = require("../../util/validators");
-
-const generateToken = (user) => {
-  return jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-    },
-    process.env.SECRET_KEY,
-    { expiresIn: "6h" }
-  );
-};
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require("../../util/getTokens");
 
 module.exports = {
   Query: {
@@ -36,7 +27,7 @@ module.exports = {
     },
   },
   Mutation: {
-    async login(_, { username, password }) {
+    async login(_, { username, password }, { response }) {
       const { errors, valid } = validateLoginInput(username, password);
       if (!valid) {
         throw new UserInputError("Errors", { errors });
@@ -51,8 +42,17 @@ module.exports = {
         errors.general = "Wrong Credentials";
         throw new UserInputError("Wrong Credentials", { errors });
       }
-      const token = generateToken(user);
-      return { ...user._doc, id: user._id, token };
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+      response.cookie("refresh-token", refreshToken, {
+        expiresIn: 7 * 24 * 60 * 60,
+        httpOnly: true,
+      });
+      response.cookie("access-token", accessToken, {
+        expiresIn: 60 * 60,
+        httpOnly: true,
+      });
+      return { ...user._doc, id: user._id };
     },
     async register(
       _,
@@ -96,7 +96,6 @@ module.exports = {
         createdAt: new Date().toISOString(),
       });
       const res = await newUser.save();
-      console.log("New User:", res);
       const token = generateToken(res);
       return { ...res._doc, id: res._id, token };
     },

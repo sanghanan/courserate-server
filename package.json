@@ -16,6 +16,7 @@
   "dependencies": {
     "apollo-server": "^2.19.0",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "graphql-yoga": "^1.18.3",
     "jsonwebtoken": "^8.5.1",

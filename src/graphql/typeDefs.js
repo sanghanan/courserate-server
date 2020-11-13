@@ -29,7 +29,6 @@ module.exports = `
   type User {
     id: ID!
     email: String!
-    token: String!
     username: String!
     createdAt: String!
     password: String!
