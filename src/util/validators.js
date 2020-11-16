@@ -41,3 +41,26 @@ module.exports.validateLoginInput = (username, password) => {
     valid: Object.keys(errors).length < 1,
   };
 };
+
+module.exports.validateCourseInput = (title, link, cost, level, skills) => {
+  const errors = {};
+  if (title.trim() === "") {
+    errors.title = "Title must not be empty";
+  }
+  if (link.trim() === "") {
+    errors.link = "Link must not be empty";
+  }
+  if (typeof cost !== "number") {
+    errors.cost = "Cost must not be empty";
+  }
+  if (level.trim() === "") {
+    errors.level = "Level must not be empty";
+  }
+  if (!skills.length) {
+    errors.skills = "Skills must not be empty";
+  }
+  return {
+    errors,
+    valid: Object.keys(errors).length < 1,
+  };
+};

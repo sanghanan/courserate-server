@@ -3,6 +3,7 @@ const Course = require("../../models/Course");
 const checkAuth = require("../../util/checkAuth");
 const User = require("../../models/User");
 const url = require("url");
+const { validateCourseInput } = require("../../util/validators");
 
 module.exports = {
   Query: {
@@ -30,8 +31,15 @@ module.exports = {
   Mutation: {
     async createCourse(_, { title, link, cost, level, skills }, context) {
       const user = await checkAuth(context);
-      if (title.trim() === "") {
-        throw new UserInputError("Course title must not be empty");
+      const { errors, valid } = validateCourseInput(
+        title,
+        link,
+        cost,
+        level,
+        skills
+      );
+      if (!valid) {
+        throw new UserInputError("Errors", { errors });
       }
       const newCourse = new Course({
         title,
@@ -46,6 +54,39 @@ module.exports = {
       });
       const course = await newCourse.save();
       return course;
+    },
+    async editCourse(
+      _,
+      { courseId, title, link, cost, level, skills },
+      context
+    ) {
+      const user = await checkAuth(context);
+      const { errors, valid } = validateCourseInput(
+        title,
+        link,
+        cost,
+        level,
+        skills
+      );
+      if (!valid) {
+        throw new UserInputError("Errors", { errors });
+      }
+      try {
+        let course = await Course.findById(courseId);
+        if (user.username === course.username) {
+          course.title = title;
+          course.link = link;
+          course.level = level;
+          course.cost = cost;
+          course.skills = skills;
+          course.save();
+          return course;
+        } else {
+          throw new AuthenticationError("Action not allowed");
+        }
+      } catch (err) {
+        throw new Error(err);
+      }
     },
     async deleteCourse(_, { courseId }, context) {
       const user = await checkAuth(context);

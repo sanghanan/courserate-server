@@ -18,10 +18,26 @@ module.exports = {
         return course;
       } else throw new UserInputError("Course not found");
     },
-    deleteReview: async (_, { courseId, reviewId }, context) => {
+    editReview: async (_, { courseId, reviewId, pros, cons }, context) => {
       const { username } = await checkAuth(context);
       const course = await Course.findById(courseId);
       if (course) {
+        const reviewIndex = course.reviews.findIndex((c) => c.id === reviewId);
+        let review = course.reviews[reviewIndex];
+        if (review && review.username === username) {
+          review.pros = pros;
+          review.cons = cons;
+          await course.save();
+          return course;
+        } else {
+          throw new AuthenticationError("Action not allowed");
+        }
+      } else throw new UserInputError("Post not found");
+    },
+    deleteReview: async (_, { courseId, reviewId }, context) => {
+      const { username } = await checkAuth(context);
+      const course = await Course.findById(courseId);
+      if (course && course.username === username) {
         const reviewIndex = course.reviews.findIndex((c) => c.id === reviewId);
         if (course.reviews[reviewIndex]) {
           course.reviews.splice(reviewIndex, 1);

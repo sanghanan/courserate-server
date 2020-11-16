@@ -48,8 +48,10 @@ module.exports = `
     register(registerInput: RegisterInput): User!
     login(username: String!, password: String!): User!
     createCourse(title: String!, link: String!, skills:[String]!,cost: Int!,level: String!): Course!
+    editCourse(courseId:ID!,title: String!, link: String!, skills:[String]!,cost: Int!,level: String!): Course!
     deleteCourse(courseId: ID!): String!
     createReview(courseId: ID!, pros: [String]!, cons:[String]!): Course!
+    editReview(courseId: ID!, reviewId:ID!, pros: [String]!, cons:[String]!): Course!
     deleteReview(courseId: ID!, reviewId: ID!): Course!
     voteCourse(courseId: ID!): Course!
   }
