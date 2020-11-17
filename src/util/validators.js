@@ -1,8 +1,8 @@
 module.exports.validateRegisterInput = (
-  username,
-  email,
-  password,
-  confirmPassword
+  username = "",
+  email = "",
+  password = "",
+  confirmPassword = ""
 ) => {
   const errors = {};
   if (username.trim() === "") {
@@ -28,7 +28,7 @@ module.exports.validateRegisterInput = (
   };
 };
 
-module.exports.validateLoginInput = (email, password) => {
+module.exports.validateLoginInput = (email = "", password = "") => {
   const errors = {};
   if (email.trim() === "") {
     errors.email = "Email must not be empty";
@@ -42,7 +42,13 @@ module.exports.validateLoginInput = (email, password) => {
   };
 };
 
-module.exports.validateCourseInput = (title, link, cost, level, skills) => {
+module.exports.validateCourseInput = (
+  title = "",
+  link = "",
+  cost = "",
+  level = "",
+  skills = ""
+) => {
   const errors = {};
   if (title.trim() === "") {
     errors.title = "Title must not be empty";
