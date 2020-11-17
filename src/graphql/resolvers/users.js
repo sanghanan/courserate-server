@@ -11,6 +11,19 @@ const {
   generateRefreshToken,
 } = require("../../util/getTokens");
 
+const setTokens = (user, response) => {
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+  response.cookie("refresh-token", refreshToken, {
+    expiresIn: 7 * 24 * 60 * 60,
+    httpOnly: true,
+  });
+  response.cookie("access-token", accessToken, {
+    expiresIn: 60 * 60,
+    httpOnly: true,
+  });
+};
+
 module.exports = {
   Query: {
     async user(_, { userId }) {
@@ -27,12 +40,12 @@ module.exports = {
     },
   },
   Mutation: {
-    async login(_, { username, password }, { response }) {
-      const { errors, valid } = validateLoginInput(username, password);
+    async login(_, { email, password }, { response }) {
+      const { errors, valid } = validateLoginInput(email, password);
       if (!valid) {
         throw new UserInputError("Errors", { errors });
       }
-      const user = await User.findOne({ username });
+      const user = await User.findOne({ email });
       if (!user) {
         errors.general = "User not found";
         throw new UserInputError("User Not Found", { errors });
@@ -42,21 +55,13 @@ module.exports = {
         errors.general = "Wrong Credentials";
         throw new UserInputError("Wrong Credentials", { errors });
       }
-      const accessToken = generateAccessToken(user);
-      const refreshToken = generateRefreshToken(user);
-      response.cookie("refresh-token", refreshToken, {
-        expiresIn: 7 * 24 * 60 * 60,
-        httpOnly: true,
-      });
-      response.cookie("access-token", accessToken, {
-        expiresIn: 60 * 60,
-        httpOnly: true,
-      });
+      setTokens(user, response);
       return { ...user._doc, id: user._id };
     },
     async register(
       _,
-      { registerInput: { username, email, password, confirmPassword } }
+      { registerInput: { username, email, password, confirmPassword } },
+      { response }
     ) {
       // Validate User Data
       const { valid, errors } = validateRegisterInput(
@@ -96,8 +101,8 @@ module.exports = {
         createdAt: new Date().toISOString(),
       });
       const res = await newUser.save();
-      const token = generateToken(res);
-      return { ...res._doc, id: res._id, token };
+      setTokens(newUser, response);
+      return { ...res._doc, id: res._id };
     },
   },
 };
