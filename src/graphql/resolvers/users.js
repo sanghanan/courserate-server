@@ -32,7 +32,7 @@ module.exports = {
         if (user) {
           return user;
         } else {
-          throw new Error("user not found");
+          throw new Error("User not found");
         }
       } catch (err) {
         throw new Error(err);
@@ -47,13 +47,13 @@ module.exports = {
       }
       const user = await User.findOne({ email });
       if (!user) {
-        errors.general = "User not found";
-        throw new UserInputError("User Not Found", { errors });
+        errors.general = "User is not registered";
+        throw new UserInputError("User is not registered", { errors });
       }
       const match = await bcrypt.compare(password, user.password);
       if (!match) {
-        errors.general = "Wrong Credentials";
-        throw new UserInputError("Wrong Credentials", { errors });
+        errors.general = "The password is incorrect.";
+        throw new UserInputError("The password is incorrect", { errors });
       }
       setTokens(user, response);
       return { ...user._doc, id: user._id };
