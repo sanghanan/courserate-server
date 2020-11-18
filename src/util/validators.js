@@ -47,7 +47,7 @@ module.exports.validateCourseInput = (
   link = "",
   cost = "",
   level = "",
-  skills = ""
+  skills = []
 ) => {
   const errors = {};
   if (title.trim() === "") {
