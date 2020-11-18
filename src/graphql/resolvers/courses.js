@@ -1,6 +1,6 @@
 const { AuthenticationError, UserInputError } = require("apollo-server");
 const Course = require("../../models/Course");
-const checkAuth = require("../../util/checkAuth");
+const { checkAuth } = require("../../util/checkAuth");
 const User = require("../../models/User");
 const url = require("url");
 const { validateCourseInput } = require("../../util/validators");

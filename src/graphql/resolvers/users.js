@@ -1,7 +1,8 @@
 const User = require("../../models/User");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { UserInputError, AuthenticationError } = require("apollo-server");
 
-const { UserInputError } = require("apollo-server");
 const {
   validateRegisterInput,
   validateLoginInput,
@@ -10,18 +11,16 @@ const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../../util/getTokens");
+const { validateRefreshToken } = require("../../util/checkAuth");
 
 const setTokens = (user, response) => {
+  response.cookie("refresh-token", generateRefreshToken(user), {
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60),
+    httpOnly: true,
+  });
   const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
-  response.cookie("refresh-token", refreshToken, {
-    expiresIn: 7 * 24 * 60 * 60,
-    httpOnly: true,
-  });
-  response.cookie("access-token", accessToken, {
-    expiresIn: 60 * 60,
-    httpOnly: true,
-  });
+  const accessTokenExpiry = new Date(new Date().getTime() + 15 * 60 * 1000);
+  return { token: accessToken, expiresIn: accessTokenExpiry };
 };
 
 module.exports = {
@@ -32,7 +31,7 @@ module.exports = {
         if (user) {
           return user;
         } else {
-          throw new Error("user not found");
+          throw new Error("User not found");
         }
       } catch (err) {
         throw new Error(err);
@@ -47,17 +46,19 @@ module.exports = {
       }
       const user = await User.findOne({ email });
       if (!user) {
-        errors.general = "User not found";
-        throw new UserInputError("User Not Found", { errors });
+        errors.general = "The email is incorrect";
+        throw new UserInputError("The email is incorrect", { errors });
       }
       const match = await bcrypt.compare(password, user.password);
       if (!match) {
-        errors.general = "Wrong Credentials";
-        throw new UserInputError("Wrong Credentials", { errors });
+        errors.general = "The password is incorrect.";
+        throw new UserInputError("The password is incorrect", { errors });
       }
-      setTokens(user, response);
-      return { ...user._doc, id: user._id };
+
+      const tokens = setTokens(user, response);
+      return { ...user._doc, id: user._id, jwt: tokens };
     },
+
     async register(
       _,
       { registerInput: { username, email, password, confirmPassword } },
@@ -101,8 +102,25 @@ module.exports = {
         createdAt: new Date().toISOString(),
       });
       const res = await newUser.save();
-      setTokens(newUser, response);
-      return { ...res._doc, id: res._id };
+      const tokens = setTokens(newUser, response);
+      return { ...res._doc, id: res._id, jwt: tokens };
+    },
+
+    async logout(_, __, { response }) {
+      response.cookie("refresh-token", "", {
+        httpOnly: true,
+        expires: new Date(0),
+      });
+      return "User logged out successfully";
+    },
+
+    async refreshToken(_, __, { request, response }) {
+      const token = request.cookies["refresh-token"];
+      const user = await validateRefreshToken(token);
+      if (user) {
+        const tokens = setTokens(user, response);
+        return tokens;
+      }
     },
   },
 };
