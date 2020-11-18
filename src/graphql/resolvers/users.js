@@ -104,5 +104,12 @@ module.exports = {
       setTokens(newUser, response);
       return { ...res._doc, id: res._id };
     },
+    async logout(_, __, { response }) {
+      response.cookie("refresh-token", "", {
+        httpOnly: true,
+        expires: new Date(0),
+      });
+      return "User logged out successfully";
+    },
   },
 };

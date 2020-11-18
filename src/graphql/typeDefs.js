@@ -47,6 +47,7 @@ module.exports = `
   type Mutation {
     register(registerInput: RegisterInput): User!
     login(email: String!, password: String!): User!
+    logout():String!
     createCourse(title: String!, link: String!, skills:[String]!,cost: Int!,level: String!): Course!
     editCourse(courseId:ID!,title: String!, link: String!, skills:[String]!,cost: Int!,level: String!): Course!
     deleteCourse(courseId: ID!): String!
