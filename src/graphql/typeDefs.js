@@ -32,12 +32,17 @@ module.exports = `
     username: String!
     createdAt: String!
     password: String!
+    jwt: Token
   }
   input RegisterInput {
     username: String!
     password: String!
     confirmPassword: String!
     email: String!
+  }
+  type Token {
+    token: String!
+    expiresIn: String!
   }
   type Query {
     courses: [Course]
@@ -47,7 +52,8 @@ module.exports = `
   type Mutation {
     register(registerInput: RegisterInput): User!
     login(email: String!, password: String!): User!
-    logout():String!
+    logout: String!
+    refreshToken: Token!
     createCourse(title: String!, link: String!, skills:[String]!,cost: Int!,level: String!): Course!
     editCourse(courseId:ID!,title: String!, link: String!, skills:[String]!,cost: Int!,level: String!): Course!
     deleteCourse(courseId: ID!): String!
