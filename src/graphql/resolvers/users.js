@@ -15,7 +15,7 @@ const { validateRefreshToken } = require("../../util/checkAuth");
 
 const setTokens = (user, response) => {
   response.cookie("refresh-token", generateRefreshToken(user), {
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60),
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     httpOnly: true,
   });
   const accessToken = generateAccessToken(user);
