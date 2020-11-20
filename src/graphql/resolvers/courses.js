@@ -29,7 +29,11 @@ module.exports = {
     },
   },
   Mutation: {
-    async createCourse(_, { title, link, cost, level, skills }, context) {
+    async createCourse(
+      _,
+      { title, link, cost, level, skills, pros, cons },
+      context
+    ) {
       const user = await checkAuth(context);
       const { errors, valid } = validateCourseInput(
         title,
@@ -41,12 +45,21 @@ module.exports = {
       if (!valid) {
         throw new UserInputError("Errors", { errors });
       }
+      const reviews = [
+        {
+          pros,
+          cons,
+          username: user.username,
+          createdAt: new Date().toISOString(),
+        },
+      ];
       const newCourse = new Course({
         title,
         link,
         cost,
         level,
         skills,
+        reviews,
         website: url.parse(link).hostname,
         user: user.id,
         username: user.username,

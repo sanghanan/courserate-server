@@ -25,9 +25,9 @@ const setTokens = (user, response) => {
 
 module.exports = {
   Query: {
-    async user(_, { userId }) {
+    async user(_, { username }) {
       try {
-        const user = await User.findById(userId);
+        const user = await User.findOne({ username });
         if (user) {
           return user;
         } else {
@@ -56,7 +56,16 @@ module.exports = {
       }
 
       const tokens = setTokens(user, response);
-      return { ...user._doc, id: user._id, jwt: tokens };
+
+      return {
+        user: {
+          username: user.username,
+          createdAt: user.createdAt,
+          email: user.email,
+          id: user._id,
+        },
+        jwt: tokens,
+      };
     },
 
     async register(
@@ -101,9 +110,12 @@ module.exports = {
         password,
         createdAt: new Date().toISOString(),
       });
-      const res = await newUser.save();
+      const savedUser = await newUser.save();
       const tokens = setTokens(newUser, response);
-      return { ...res._doc, id: res._id, jwt: tokens };
+      return {
+        user: { email, username, createdAt, id: savedUser._id },
+        jwt: tokens,
+      };
     },
 
     async logout(_, __, { response }) {

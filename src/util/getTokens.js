@@ -9,7 +9,7 @@ const generateAccessToken = (user) => {
       username: user.username,
     },
     process.env.SECRET_KEY,
-    { expiresIn: "1h" }
+    { expiresIn: "15m" }
   );
 };
 
