@@ -13,11 +13,16 @@ const server = new GraphQLServer({
 });
 
 server.use(cookieParser());
+
 const options = {
   port: PORT,
   endpoint: "/graphql",
   subscriptions: "/subscriptions",
   playground: "/playground",
+  cors: {
+    credentials: true,
+    origin: ["http://localhost:3000"],
+  },
 };
 
 const startServer = async () => {
