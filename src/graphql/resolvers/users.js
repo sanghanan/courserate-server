@@ -17,6 +17,8 @@ const setTokens = (user, response) => {
   response.cookie("refresh-token", generateRefreshToken(user), {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     httpOnly: true,
+    sameSite: "none",
+    secure: true,
   });
   const accessToken = generateAccessToken(user);
   const accessTokenExpiry = new Date(new Date().getTime() + 15 * 60 * 1000);
@@ -122,6 +124,8 @@ module.exports = {
       response.cookie("refresh-token", "", {
         httpOnly: true,
         expires: new Date(0),
+        sameSite: "none",
+        secure: true,
       });
       return "User logged out successfully";
     },
