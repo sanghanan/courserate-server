@@ -25,7 +25,7 @@ const options = {
   },
 };
 
-app.use((req, res, next) => {
+server.use((req, res, next) => {
   const allowedOrigins = [
     "http://localhost:3000",
     "https://courserate.netlify.app",
