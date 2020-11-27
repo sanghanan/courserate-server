@@ -13,7 +13,6 @@ const server = new GraphQLServer({
 });
 
 server.use(cookieParser());
-
 const options = {
   port: PORT,
   endpoint: "/graphql",

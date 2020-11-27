@@ -58,7 +58,6 @@ module.exports = {
       }
 
       const tokens = setTokens(user, response);
-
       return {
         user: {
           username: user.username,
@@ -115,7 +114,12 @@ module.exports = {
       const savedUser = await newUser.save();
       const tokens = setTokens(newUser, response);
       return {
-        user: { email, username, createdAt, id: savedUser._id },
+        user: {
+          email,
+          username,
+          createdAt: savedUser.createdAt,
+          id: savedUser._id,
+        },
         jwt: tokens,
       };
     },

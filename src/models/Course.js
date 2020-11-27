@@ -10,24 +10,19 @@ const courseSchema = new Schema({
   cost: Number,
   skills: [String],
   level: String,
-  reviews: [
-    {
-      pros: [String],
-      cons: [String],
-      username: String,
-      createdAt: String,
-    },
-  ],
+  reviews: [],
   votes: [
     {
       username: String,
       createdAt: String,
     },
   ],
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: "users",
-  },
+  reviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Review",
+    },
+  ],
 });
 
 module.exports = model("Course", courseSchema);

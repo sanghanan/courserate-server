@@ -4,12 +4,17 @@ const { checkAuth } = require("../../util/checkAuth");
 const User = require("../../models/User");
 const url = require("url");
 const { validateCourseInput } = require("../../util/validators");
+const Review = require("../../models/Review");
+const mongoose = require("mongoose");
 
 module.exports = {
   Query: {
     async courses() {
       try {
-        const courses = await Course.find({}).sort({ createdAt: -1 });
+        const courses = await Course.find({})
+          .populate({ path: "reviews" })
+          .sort({ createdAt: -1 });
+        console.log(courses);
         return courses;
       } catch (err) {
         console.log(err);
@@ -17,7 +22,8 @@ module.exports = {
     },
     async course(_, { courseId }) {
       try {
-        const course = await Course.findById(courseId);
+        let course = await Course.findById(courseId);
+        course = await course.populate("reviews").execPopulate();
         if (course) {
           return course;
         } else {
@@ -45,27 +51,30 @@ module.exports = {
       if (!valid) {
         throw new UserInputError("Errors", { errors });
       }
-      const reviews = [
-        {
-          pros,
-          cons,
-          username: user.username,
-          createdAt: new Date().toISOString(),
-        },
-      ];
-      const newCourse = new Course({
+
+      const course = new Course({
+        _id: new mongoose.Types.ObjectId(),
         title,
         link,
         cost,
         level,
         skills,
-        reviews,
         website: url.parse(link).hostname,
         user: user.id,
         username: user.username,
         createdAt: new Date().toISOString(),
       });
-      const course = await newCourse.save();
+      const review = new Review({
+        _id: new mongoose.Types.ObjectId(),
+        pros,
+        cons,
+        username: user.username,
+        createdAt: new Date().toISOString(),
+        course: course._id,
+      });
+      course.reviews.push(review);
+      await course.save();
+      await review.save();
       return course;
     },
     async editCourse(
@@ -93,6 +102,7 @@ module.exports = {
           course.cost = cost;
           course.skills = skills;
           course.save();
+          course = await course.populate("reviews").execPopulate();
           return course;
         } else {
           throw new AuthenticationError("Action not allowed");
