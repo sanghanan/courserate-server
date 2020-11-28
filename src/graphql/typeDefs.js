@@ -46,10 +46,15 @@ module.exports = `
     user:User!
     jwt:Token!
   }
+  type UserHistory{
+    user:User!
+    courses:[Course]!
+    reviews:[Review]!
+  }
   type Query {
     courses: [Course]
     course(courseId: ID!): Course
-    user(username: String!): User
+    user(username: String!): UserHistory
   }
   type Mutation {
     register(registerInput: RegisterInput): AuthenticatedUser!

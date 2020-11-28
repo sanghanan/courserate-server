@@ -12,6 +12,8 @@ const {
   generateRefreshToken,
 } = require("../../util/getTokens");
 const { validateRefreshToken } = require("../../util/checkAuth");
+const Course = require("../../models/Course");
+const Review = require("../../models/Review");
 
 const setTokens = (user, response) => {
   response.cookie("refresh-token", generateRefreshToken(user), {
@@ -31,7 +33,11 @@ module.exports = {
       try {
         const user = await User.findOne({ username });
         if (user) {
-          return user;
+          const courses = await Course.find({ username })
+            .sort({ createdAt: -1 })
+            .populate({ path: "reviews" });
+          const reviews = await Review.find({ username });
+          return { user, courses, reviews };
         } else {
           throw new Error("User not found");
         }
